@@ -53,6 +53,8 @@ class MyKNNClassifier(MyMLModels):
         self._y = y
         if nlist is None:
             nlist = self.nlist
+        else:
+            self.nlist = nlist
         # Result dataframes
         self._df_train = pd.DataFrame()
         self._df_test = pd.DataFrame()
@@ -115,10 +117,11 @@ class MyKNNClassifier(MyMLModels):
             x = self._X.iloc[:, i].to_numpy().reshape(-1, 1)
             df_score[i] = cross_val_score(knn, x, self._y)
         # Get score sorted by highest
-        df_score = (df_score.mean()
-                    .sort_values(ascending=False).to_frame())
-        df_score.set_index(self._X.columns, inplace=True)
-        return df_score.rename(columns={0: 'score'})
+        df_score = df_score.mean()
+        df_score.index = features
+        df_score = (df_score.sort_values(ascending=False)
+                    .to_frame().rename(columns={0: 'score'}))
+        return df_score
 
     def get_metric(self, X=None, y=None,
                    random_state=None, n_neighbors=None, ax=None):
